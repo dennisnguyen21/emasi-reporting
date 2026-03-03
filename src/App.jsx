@@ -282,6 +282,11 @@ export default function App() {
                                 type="date"
                                 className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
                                 data-type="picker-trigger"
+                                onClick={(e) => {
+                                    try {
+                                        if (e.target.showPicker) e.target.showPicker();
+                                    } catch (err) { }
+                                }}
                                 onChange={(e) => handleDatePickerChange(e, task, field)}
                             />
                             <button className="flex items-center justify-center w-full py-1.5 bg-indigo-50 text-indigo-600 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-all shadow-sm active:scale-95">
