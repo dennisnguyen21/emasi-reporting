@@ -147,30 +147,38 @@ export default function App() {
         const tasksCol = collection(db, 'artifacts', appId, 'public', 'data', 'tasks');
 
         const unsubTasks = onSnapshot(tasksCol,
-            async (snap) => {
-                // If the collection is completely empty, initialize it with default templates
-                if (snap.empty) {
-                    setTasks(INITIAL_TASK_TEMPLATE);
-                    // Upload to Firebase in the background
-                    for (const t of INITIAL_TASK_TEMPLATE) {
+            (snap) => {
+                // Map existing data from Firestore
+                const existingData = snap.docs.map(d => {
+                    const r = d.data();
+                    return {
+                        id: d.id,
+                        step: Number(r.step) || 0,
+                        description: String(r.description || ""),
+                        earlyYears: String(r.earlyYears || ""),
+                        primary: String(r.primary || ""),
+                        secondary: String(r.secondary || ""),
+                        status: String(r.status || "Not Started")
+                    };
+                });
+
+                // Check if we are missing any tasks compared to the template
+                if (existingData.length < INITIAL_TASK_TEMPLATE.length) {
+                    const existingIds = new Set(existingData.map(t => String(t.id)));
+                    const missingTasks = INITIAL_TASK_TEMPLATE.filter(t => !existingIds.has(String(t.id)));
+
+                    // Write missing tasks to Firebase in the background
+                    missingTasks.forEach(t => {
                         const tDoc = doc(db, 'artifacts', appId, 'public', 'data', 'tasks', t.id);
-                        setDoc(tDoc, t).catch(err => console.error("Initial sync error:", err));
-                    }
-                } else {
-                    // Map existing data and sort by step
-                    const data = snap.docs.map(d => {
-                        const r = d.data();
-                        return {
-                            id: d.id,
-                            step: Number(r.step) || 0,
-                            description: String(r.description || ""),
-                            earlyYears: String(r.earlyYears || ""),
-                            primary: String(r.primary || ""),
-                            secondary: String(r.secondary || ""),
-                            status: String(r.status || "Not Started")
-                        };
+                        setDoc(tDoc, t).catch(err => console.error("Sync missing task error:", err));
                     });
-                    setTasks(data.sort((a, b) => a.step - b.step));
+
+                    // Optimistically combine and show immediately
+                    const combinedTasks = [...existingData, ...missingTasks];
+                    setTasks(combinedTasks.sort((a, b) => a.step - b.step));
+                } else {
+                    // We have all tasks, just set them
+                    setTasks(existingData.sort((a, b) => a.step - b.step));
                 }
             },
             (err) => {
