@@ -259,10 +259,10 @@ export default function App() {
         return (
             <div className="relative group/cell flex items-center justify-center w-full min-h-[44px]">
                 {isEditing ? (
-                    <div className="flex items-center gap-1 w-full animate-in fade-in zoom-in duration-300">
+                    <div className="flex flex-col items-center gap-1.5 w-full animate-in fade-in zoom-in duration-300 py-1">
                         <input
                             type="text"
-                            className="flex-1 text-[11px] font-bold text-slate-800 bg-white border border-indigo-400 rounded-xl px-2 py-2 focus:outline-none shadow-sm"
+                            className="w-full text-center text-[11px] font-bold text-slate-800 bg-white border border-indigo-400 rounded-xl px-2 py-1.5 focus:outline-none shadow-sm"
                             value={editingCell.value}
                             autoFocus
                             onChange={(e) => setEditingCell({ ...editingCell, value: e.target.value })}
@@ -277,14 +277,14 @@ export default function App() {
                             placeholder="DD/MM/YYYY"
                         />
 
-                        <div className="relative flex items-center">
+                        <div className="relative flex items-center justify-center w-full">
                             <input
                                 type="date"
-                                className="absolute inset-0 opacity-0 cursor-pointer w-7 h-7 z-10"
+                                className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
                                 data-type="picker-trigger"
                                 onChange={(e) => handleDatePickerChange(e, task, field)}
                             />
-                            <button className="p-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all shadow-md active:scale-95">
+                            <button className="flex items-center justify-center w-full py-1.5 bg-indigo-50 text-indigo-600 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-all shadow-sm active:scale-95">
                                 <CalendarDays className="w-3.5 h-3.5" />
                             </button>
                         </div>
