@@ -6,7 +6,8 @@ import {
     doc,
     setDoc,
     updateDoc,
-    onSnapshot
+    onSnapshot,
+    enableIndexedDbPersistence
 } from 'firebase/firestore';
 import {
     getAuth,
@@ -42,6 +43,15 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+
+// Enable offline persistence for faster initial loads
+enableIndexedDbPersistence(db).catch((err) => {
+    if (err.code == 'failed-precondition') {
+        console.warn("Multiple tabs open, persistence can only be enabled in one tab at a a time.");
+    } else if (err.code == 'unimplemented') {
+        console.warn("The current browser does not support all of the features required to enable persistence.");
+    }
+});
 
 // SỬA LỖI QUAN TRỌNG: appId phải là một chuỗi không chứa dấu "/" để Firestore 
 // coi nó là 1 segment duy nhất trong đường dẫn /artifacts/{appId}/...
@@ -137,7 +147,7 @@ export default function App() {
         const tasksCol = collection(db, 'artifacts', appId, 'public', 'data', 'tasks');
 
         const unsubTasks = onSnapshot(tasksCol,
-            (snap) => {
+            async (snap) => {
                 const data = snap.docs.map(d => {
                     const r = d.data();
                     return {
@@ -152,15 +162,21 @@ export default function App() {
                 });
 
                 if (data.length === 0) {
-                    INITIAL_TASK_TEMPLATE.forEach(async (t) => {
+                    // Nếu chưa có dữ liệu, KHÔNG map over mảng array trực tiếp với setDoc 
+                    // mà chỉ khởi tạo State ảo, Firestore setup sẽ chạy ngầm
+                    setTasks(INITIAL_TASK_TEMPLATE);
+                    for (const t of INITIAL_TASK_TEMPLATE) {
                         const tDoc = doc(db, 'artifacts', appId, 'public', 'data', 'tasks', t.id);
                         await setDoc(tDoc, t);
-                    });
+                    }
                 } else {
                     setTasks(data.sort((a, b) => a.step - b.step));
                 }
             },
-            (err) => console.error("Lỗi Firestore:", err.message)
+            (err) => {
+                console.error("Lỗi Firestore:", err.message);
+                setLoading(false);
+            }
         );
 
         return () => unsubTasks();
