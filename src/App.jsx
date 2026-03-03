@@ -402,7 +402,7 @@ export default function App() {
                                         const statusStyle = STATUS_CONFIG[statusKey] || STATUS_CONFIG["Not Started"];
                                         const StatusIcon = statusStyle.icon;
                                         return (
-                                            <tr key={task.id} className="hover:bg-indigo-50/20 transition-all duration-300 group">
+                                            <tr key={task.id} className="hover:bg-indigo-50/20 transition-all duration-300">
                                                 <td className="px-6 py-5 text-center">
                                                     <span className="text-xs font-black text-slate-200 group-hover:text-indigo-600 transition-colors">
                                                         {String(task.step).padStart(2, '0')}
