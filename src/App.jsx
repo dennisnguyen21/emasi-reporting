@@ -413,14 +413,14 @@ export default function App() {
                                                     {renderEditableCell(task, 'secondary')}
                                                 </td>
                                                 <td className="px-6 py-5">
-                                                    <div className="relative group/status w-full">
+                                                    <div className="relative group/status w-[140px] max-w-full">
                                                         <div className={`flex items-center gap-2 px-3 py-2.5 rounded-2xl border-2 transition-all duration-300 shadow-sm hover:shadow-md hover:scale-[1.02] ${statusStyle.color}`}>
                                                             <div className={`w-1.5 h-1.5 rounded-full ${statusStyle.accent} animate-pulse shrink-0 shadow-[0_0_8px] shadow-current`}></div>
                                                             <StatusIcon className="w-3.5 h-3.5 opacity-60 shrink-0" />
                                                             <select
                                                                 value={statusKey}
                                                                 onChange={(e) => updateTaskStatus(task.id, e.target.value)}
-                                                                className="bg-transparent text-[10px] font-black uppercase tracking-widest outline-none cursor-pointer w-full appearance-none pr-4"
+                                                                className="bg-transparent text-[10px] font-black uppercase tracking-widest outline-none cursor-pointer w-full appearance-none pr-6 text-ellipsis overflow-hidden whitespace-nowrap"
                                                             >
                                                                 {STATUS_OPTIONS.map(opt => <option key={opt} value={opt} className="bg-white text-slate-900">{opt}</option>)}
                                                             </select>
